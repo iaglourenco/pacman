@@ -251,7 +251,7 @@ MAIN PROC
 	INT 21H 
 	
 	MOV AH, 1                   
-	INT 21H                      
+	INT 21H 
 	
 	CALL CLS
 	
@@ -286,6 +286,8 @@ MAIN PROC
 	JMP LOOP1
 	
 SAI:
+	
+	
 	MOV AH ,4Ch
 	INT 21H
 MAIN ENDP
@@ -479,10 +481,35 @@ USUARIO PROC
 	MOV AH,9
 	INT 21H
 	
-	MOV AH, 1
+	MOV AH, 7H
 	INT 21H
 	
-	MOV AH, 2H
+	MOV AH,2H ;prepara para exibir caracter no monitor
+	MOV DL, AL ;o caracter é ‘?’
+	INT 21h
+	
+	MOV AH, 7H
+	INT 21H
+	
+	MOV AH,2H ;prepara para exibir caracter no monitor
+	MOV DL, AL ;o caracter é ‘?’
+	INT 21h
+	
+	MOV AH, 7H
+	INT 21H
+	
+	MOV AH,2H ;prepara para exibir caracter no monitor
+	MOV DL, AL ;o caracter é ‘?’
+	INT 21h
+	
+	MOV AH, 7H
+	INT 21H
+	
+	MOV AH,2H ;prepara para exibir caracter no monitor
+	MOV DL, AL ;o caracter é ‘?’
+	INT 21h
+	
+	MOV AH, 1
 	INT 21H
 	
 	MOV VNOME, AL
