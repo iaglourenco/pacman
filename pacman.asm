@@ -69,10 +69,13 @@ PRINTAR	MACRO	MATRIZ, COR, POSICAO_X, POSICAO_Y, LARGURA, TAMANHO
 	;MODO DE VIDEO
 	VIDEOMODE	DW	?
 ;========================================================================================================================================================================
-COMIDA	DB 1	;1x1 1PIXEL
+COMIDA	DB 1,1
+		DB 1,1	;2x2 1PIXEL
 ;========================================================================================================================================================================
-PASTILHA 	DB 1,1
-			DB 1,1 ;2X2 PIXEL
+PASTILHA 	DB 1,1,1,1
+			DB 1,1,1,1 ;4X4 PIXEL
+			DB 1,1,1,1
+			DB 1,1,1,1
 ;========================================================================================================================================================================
 APAGA 				DB 	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1	;16X16  
 					DB	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1	;256 PIXELS
@@ -139,7 +142,6 @@ PACMANABERTOCIMA	DB	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	;15X16	240 PIXELS
 					DB	0,0,0,1,1,1,1,1,1,1,1,1,0,0,0
 					DB	0,0,0,0,0,1,1,1,1,1,0,0,0,0,0
 ;========================================================================================================================================================================					
-					
 PACMANABERTOBAIXO	DB	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0		;15X16	240 PIXELS
 					DB	0,0,0,0,0,1,1,1,1,1,0,0,0,0,0
 					DB	0,0,0,1,1,1,1,1,1,1,1,1,0,0,0
@@ -155,7 +157,6 @@ PACMANABERTOBAIXO	DB	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0		;15X16	240 PIXELS
 					DB	0,0,1,1,1,1,0,0,0,1,1,1,1,0,0
 					DB	0,0,0,1,1,0,0,0,0,0,1,1,0,0,0
 					DB	0,0,0,0,1,0,0,0,0,0,1,0,0,0,0
-					
 ;========================================================================================================================================================================				
 PACMANFECHADO	DB 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 	;16X15
 				DB	0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0		;240 PIXELS
@@ -367,10 +368,15 @@ MAPAFACIL			DB	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 					DB	1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1											
 					DB	1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
 					DB	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-;======================================================================================================================================================================================
-;MAPA MEDIO TAMANHO 100X200		
+;=====================================================================================================================================================================================================================================================================
+;MAPA MEDIO 
+MAPAMEDIO	DB 1,1,1,1,1,1,1,1,1,1
+			DB 1,1,1,1,1,1,1,1,1,1
 
-;======================================================================================================================================================================================
+;=====================================================================================================================================================================================================================================================================
+;MAPA DIFICIL
+MAPADIFICIL		DB 1,1,1,1,1,1,1,1,1,1
+;=====================================================================================================================================================================================================================================================================
 .CODE                                                                                                                                                             
 MAIN PROC
 
@@ -399,35 +405,19 @@ MAIN PROC
 	
 	CALL CLS
 	
+	MOV MOV_X,31
+	MOV MOV_Y,31
+	
 	CALL ESCOLHAMAPA
 	
 	CALL CLS
 	
 	;MATRIZ, COR, POSICAO_X, POSICAO_Y, LARGURA, TAMANHO
 	
-	MOV MOV_X,31
-	MOV MOV_Y,31
 	
-	CALL PRINT_VIDA
+			
 	
-	LEA DX, SCORE
-	MOV AH, 9
-	INT 21H
-	
-	PRINTAR PACMANABERTODIR,44H,31,31,16,240
-	
-	PRINTAR FANTASMACACADOR,4D, 80, 63, 16, 240
-	
-	LOOP1:
-	
-	CALL PRINTARMAPA
-	
-	CALL MOVIMENTO_PACMAN
-	
-	
-	;CALL CLS
-	JMP LOOP1
-	
+
 SAI:
 	MOV AH ,4Ch
 	INT 21H
@@ -436,7 +426,6 @@ MAIN ENDP
 ;MOVIMENTACAO PACMAN
 MOVIMENTO_PACMAN PROC
 
-	
 	MOV BX,MOV_X
 	MOV DX,MOV_Y
 
@@ -540,7 +529,6 @@ DIREITA:
 	MOV DX,MOV_Y
 	MOV BX,MOV_X
 	
-	
 	RET
 	
 FIMC:
@@ -609,15 +597,19 @@ BAIXO:
 	RET
 MOVIMENTO_PACMAN ENDP
 ;==========================================================================================================================
-PRINT_VIDA PROC
+HUD PROC
 
 	PRINTAR VIDA,12D, 210,55, 15,195
 	PRINTAR VIDA,12D, 230,55, 15,195	; print dos coraçoes
 	PRINTAR VIDA,12D, 250,55, 15,195
 	
+	LEA DX, SCORE
+	MOV AH, 9
+	INT 21H
+
+
 	RET
-	
-PRINT_VIDA ENDP
+HUD ENDP
 ;==========================================================================================================================
 PIXEL PROC
 ;print de pixel	
@@ -670,10 +662,10 @@ BEMVINDO PROC
 	PRINTAR FANTASMACACADOR, 11D, 120, 100, 16, 240
 	PRINTAR FANTASMACACADOR, 13D, 140, 100, 16, 240
 	PRINTAR FANTASMACACADOR, 10D, 160, 100, 16, 240
-	PRINTAR PACMANABERTODIR, 44H, 190, 100, 16, 240
-	PRINTAR COMIDA, 44H, 210, 107, 1, 1
-	PRINTAR COMIDA, 44H, 215, 107, 1, 1
-	PRINTAR COMIDA, 44H, 220, 107, 1, 1
+	PRINTAR PACMANABERTODIR, 44H, 190,100, 16, 240
+	PRINTAR COMIDA, 44H, 210, 107, 2, 4
+	PRINTAR COMIDA, 44H, 215, 107, 2, 4
+	PRINTAR COMIDA, 44H, 220, 107, 2, 4
 	
 	RET
 BEMVINDO ENDP
@@ -703,21 +695,115 @@ ESCOLHAMAPA PROC
 	MOV DECISAOMAPA, AL
 	
 	CMP DECISAOMAPA, 1
+		
+	CALL PRINTARMAPAFACIL
 	
-	CALL PRINTARMAPA
+	CMP DECISAOMAPA, 2
+	CALL PRINTARMAPAMEDIO
 	
-	;CONTINUAÇÃO MAPAS!
+	CMP DECISAOMAPA, 3
+	CALL PRINTARMAPADIFICIL	
 	
 	RET
 ESCOLHAMAPA ENDP
 ;===========================================================
-;ESCOLHA DO MAPAFACIL
-PRINTARMAPA PROC
-
-	PRINTAR MAPAFACIL, 1d, 30, 30, 114, 16643	;print do mapa
+;ESCOLHA DO MAPA FACIL
+PRINTARMAPAFACIL PROC
+	CALL CLS
+	CALL HUD
+	PRINTAR MAPAFACIL, 1d, 30, 30, 114, 16644	;print do mapa
+	PRINTAR FANTASMACACADOR,12D	, 80, 159, 16, 240
 	
-	RET
-PRINTARMAPA ENDP
+	PRINTAR PASTILHA, 12D, 38, 38, 4, 16
+	PRINTAR COMIDA, 12D, 38, 54, 2, 4
+	PRINTAR COMIDA, 12D, 38, 70, 2, 4
+	PRINTAR COMIDA, 12D, 38, 86, 2, 4
+	PRINTAR COMIDA, 12D, 38, 102, 2, 4
+	PRINTAR COMIDA, 12D, 38, 118, 2, 4
+	PRINTAR COMIDA, 12D, 38, 134, 2, 4
+	PRINTAR COMIDA, 12D, 38, 150, 2, 4
+	PRINTAR PASTILHA, 12D, 38, 166, 4, 16
+	
+	PRINTAR COMIDA, 12D, 54, 38, 2, 4
+	PRINTAR COMIDA, 12D, 70, 38, 2, 4
+	PRINTAR COMIDA, 12D, 86, 38, 2, 4
+	PRINTAR COMIDA, 12D, 102, 38, 2, 4
+	PRINTAR COMIDA, 12D, 118, 38, 2, 4
+	PRINTAR PASTILHA, 12D, 134, 38, 4, 16
+	
+	PRINTAR COMIDA, 12D, 134, 54, 2, 4
+	PRINTAR COMIDA, 12D, 134, 70, 2, 4
+	PRINTAR COMIDA, 12D, 134, 86, 2, 4
+	PRINTAR COMIDA, 12D, 134, 102, 2, 4
+	PRINTAR COMIDA, 12D, 134, 118, 2, 4
+	PRINTAR COMIDA, 12D, 134, 134, 2, 4
+	PRINTAR COMIDA, 12D, 134, 150, 2, 4
+	PRINTAR PASTILHA, 12D, 134, 166, 4, 16
+	
+	PRINTAR COMIDA, 12D, 54, 166, 2, 4
+	PRINTAR COMIDA, 12D, 70, 166, 2, 4
+	PRINTAR COMIDA, 12D, 86, 166, 2, 4
+	PRINTAR COMIDA, 12D, 102, 166, 2, 4
+	PRINTAR COMIDA, 12D, 118, 166, 2, 4
+	
+	PRINTAR COMIDA, 12D, 70, 54, 2, 4
+	PRINTAR COMIDA, 12D, 70, 70, 2, 4
+	PRINTAR COMIDA, 12D, 70, 86, 2, 4
+	PRINTAR COMIDA, 12D, 70, 102, 2, 4
+	PRINTAR COMIDA, 12D, 70, 118, 2, 4
+	PRINTAR COMIDA, 12D, 70, 134, 2, 4
+	PRINTAR COMIDA, 12D, 70, 150, 2, 4
+	
+	PRINTAR COMIDA, 12D, 102, 54, 2, 4
+	PRINTAR COMIDA, 12D, 102, 70, 2, 4
+	PRINTAR COMIDA, 12D, 102, 86, 2, 4
+	PRINTAR COMIDA, 12D, 102, 102, 2, 4
+	PRINTAR COMIDA, 12D, 102, 118, 2, 4
+	PRINTAR COMIDA, 12D, 102, 134, 2, 4
+	PRINTAR COMIDA, 12D, 102, 150, 2, 4
+	
+	PRINTAR COMIDA, 12D, 54, 70, 2, 4
+	PRINTAR COMIDA, 12D, 86, 70, 2, 4
+	PRINTAR COMIDA, 12D, 118, 70, 2, 4
+	
+	PRINTAR COMIDA, 12D, 54, 102, 2, 4
+	PRINTAR PASTILHA, 12D, 86, 102, 4, 16
+	PRINTAR COMIDA, 12D, 118, 102, 2, 4
+	
+	PRINTAR COMIDA, 12D, 54, 134, 2, 4
+	PRINTAR COMIDA, 12D, 86, 134, 2, 4
+	PRINTAR COMIDA, 12D, 118, 134, 2, 4
+	PRINTAR PACMANABERTODIR,44H,31,31,16,240
+	
+LOOP1:
+	PRINTAR MAPAFACIL, 1d, 30, 30, 114, 16644	;print do mapa
+	
+	CALL MOVIMENTO_PACMAN
+	
+	JMP LOOP1
+	
+	RET                       
+PRINTARMAPAFACIL ENDP
+;===========================================================
+;ESCOLHA DO MAPA MEDIO
+PRINTARMAPAMEDIO PROC
+
+	PRINTAR MAPAMEDIO, 1d, 30, 30, 10, 20	;print do mapa
+	
+	;CALL MOVIMENTO_PACMAN
+	
+	RET                       
+PRINTARMAPAMEDIO ENDP              
+;===========================================================
+;ESCOLHA DO MAPA DIFICIL
+PRINTARMAPADIFICIL PROC
+
+	PRINTAR MAPADIFICIL, 1d, 30, 30, 10, 10	;print do mapa
+	
+	;CALL MOVIMENTO_PACMAN
+	
+	RET                       
+PRINTARMAPADIFICIL ENDP                  
 ;===========================================================
 ;GUARDA NOME USUARIO
 USUARIO PROC
@@ -776,33 +862,33 @@ PULALINHA ENDP
 ;===========================================================
 FECHAR PROC
 
-CALL CLS
+	CALL CLS
 
-LEA DX,MSGSAIDA
-MOV AH,9
-INT 21H
+	LEA DX,MSGSAIDA
+	MOV AH,9
+	INT 21H
 
-MOV AH,1
-INT 21H
+	MOV AH,1
+	INT 21H
 
-CMP  AL,'S'
-JE SAIR
+	CMP  AL,'S'
+	JE SAIR
 
-CMP AL,'s'
-JE SAIR
+	CMP AL,'s'
+	JE SAIR
 
-CALL MAIN
+	CALL MAIN
 
 SAIR:
-MOV AH,00H
-MOV AL,10H
-INT 10H
+	MOV AH,00H
+	MOV AL,10H
+	INT 10H
 
-MOV AH,4CH
-INT 21H
+	MOV AH,4CH
+	INT 21H
 
 FECHAR ENDP
-
+;===========================================================
 DELAY PROC
 ; DELAY DE 50 MILISEGUNDOS PARA ANIMACOES
 
@@ -813,5 +899,7 @@ DELAY PROC
 
 	RET
 DELAY ENDP
+;===========================================================
+
 
 END
