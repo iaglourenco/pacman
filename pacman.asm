@@ -70,8 +70,8 @@ PRINTAR	MACRO	MATRIZ, COR, POSICAO_X, POSICAO_Y, LARGURA, TAMANHO
 	M2 DB 0
 	M3 DB 0
 	
-	;MODO DE VIDEO
-	VIDEOMODE	DW	?
+	SCOREVAR DW 0
+	BOOLEANA	DW	0
 ;========================================================================================================================================================================
 COMIDA	DB 1,1
 		DB 1,1	;2x2 1PIXEL
@@ -552,19 +552,10 @@ MAIN PROC
 	CALL USUARIO
 	
 	CALL CLS
-	
-	
-	
+
 	CALL ESCOLHAMAPA
-	
 	CALL CLS
 	
-	
-	
-	
-			
-	
-
 SAI:
 	MOV AH ,4Ch
 	INT 21H
@@ -575,10 +566,7 @@ MOVIMENTO_PACMAN PROC
 
 	MOV BX,MOV_X
 	MOV DX,MOV_Y
-
-	MOV AH,07h
-	INT 21h
-		
+	
 	CMP AL,'a'
 	JE ESQUERDA1
 		
@@ -618,6 +606,14 @@ ESQUERDA:
 	CMP BX,31
 	JE FIME
 	
+	PUSH BX
+	SUB BX,16
+	CALL COLISOES
+	POP BX
+	MOV AX,BOOLEANA
+	CMP AX,1
+	JE FIME
+	
 	PRINTAR APAGA,00H,BX,DX,16,256		;APAGA
 	MOV BX,MOV_X
 	MOV DX,MOV_Y
@@ -650,6 +646,14 @@ FIMD:
 	
 DIREITA:
 	CMP BX,127
+	JE FIMD
+	
+	PUSH BX
+	ADD BX,16
+	CALL COLISOES
+	POP BX
+	MOV AX,BOOLEANA
+	CMP AX,1
 	JE FIMD
 	
 	PRINTAR APAGA,00H,BX,DX,16,256		;APAGA
@@ -685,6 +689,16 @@ CIMA:
 	CMP DX,31
 	JE FIMC
 	
+	PUSH BX
+	PUSH DX
+	SUB DX,16
+	CALL COLISOES
+	POP DX
+	POP BX
+	MOV AX,BOOLEANA
+	CMP AX,1
+	JE FIMC
+	
 	PRINTAR APAGA,00H,BX,DX,16,256	;APAGA
 	MOV BX,MOV_X
 	MOV DX, MOV_Y
@@ -715,6 +729,16 @@ FIMB:
 	
 BAIXO:
 	CMP DX,159
+	JE FIMB
+	
+	PUSH BX
+	PUSH DX
+	ADD DX,16
+	CALL COLISOES
+	POP DX
+	POP BX
+	MOV AX,BOOLEANA
+	CMP AX,1
 	JE FIMB
 	
 	PRINTAR APAGA,00H,BX,DX,16,256	
@@ -750,17 +774,11 @@ HUD PROC
 	PRINTAR VIDA,12D, 230,55, 15,195	; print dos coraçoes
 	PRINTAR VIDA,12D, 250,55, 15,195
 	
-	LEA DX,VNOME
-	MOV AH, 9
-	INT 21H
-
-	
-	MOV DX,0DH
-	INT 21H
 	
 	LEA DX, SCORE
 	MOV AH, 9
 	INT 21H
+	
 
 	RET
 HUD ENDP
@@ -873,16 +891,69 @@ PRINTARMPDIFICIL:
 	RET
 ESCOLHAMAPA ENDP
 ;===========================================================
+COLISOES PROC
+	MOV CX,BX;EIXO X
+	MOV DX,DX;EIXO Y 
+	
+	;AL = COLOR
+	MOV BH,8 ;; MEIO?
+	MOV AH,0DH		;read graphics pixel
+	INT 10H
+	
+	CMP AL,1d
+	JE COLIDIUPAREDE
+	CMP AL,13d
+	JE COLIDIUGHOST
+	CMP AL,12D
+	JE COMEU
+	
+	XOR BX,BX
+	MOV BX,0
+	MOV BOOLEANA,BX	
+	RET	
+
+	COLIDIUGHOST:
+	XOR BX,BX
+	MOV BX,2
+	MOV BOOLEANA,BX
+	
+	RET
+	
+	COLIDIUPAREDE:
+	XOR BX,BX
+	MOV BX,1
+	MOV BOOLEANA,BX
+	
+	RET
+	
+	COMEU:
+	PUSH CX
+	XOR CX,CX
+	MOV CX,SCOREVAR
+	ADD CX,1
+	MOV SCOREVAR,CX
+	POP CX
+	
+	XOR BX,BX
+	MOV BX,0
+	MOV BOOLEANA,BX	
+		
+	RET
+	
+	
+COLISOES ENDP
+
+;===========================================================
 ;ESCOLHA DO MAPA FACIL
 PRINTARMAPAFACIL PROC
 
 	MOV MOV_X,31
 	MOV MOV_Y,31
-	
 	CALL CLS
 	CALL HUD
+	
 	PRINTAR MAPAFACIL, 1d, 30, 30, 114, 16644	;print do mapa
-	PRINTAR FANTASMACACADOR,12D	, 80, 159, 16, 240
+	
 	
 	PRINTAR PASTILHA, 12D, 38, 38, 4, 16
 	PRINTAR COMIDA, 12D, 38, 54, 2, 4
@@ -943,13 +1014,22 @@ PRINTARMAPAFACIL PROC
 	PRINTAR COMIDA, 12D, 54, 134, 2, 4
 	PRINTAR COMIDA, 12D, 86, 134, 2, 4
 	PRINTAR COMIDA, 12D, 118, 134, 2, 4
+	PRINTAR FANTASMACACADOR,13D	, 80, 159, 16, 240
 	PRINTAR PACMANABERTODIR,44H,31,31,16,240
 	
 LOOP1:
 	PRINTAR MAPAFACIL, 1d, 30, 30, 114, 16644	;print do mapa
+	MOV AH,07h
+	INT 21h
 	
 	CALL MOVIMENTO_PACMAN
 	
+	MOV AH,3
+	INT 10H
+	
+	
+	MOV AX,SCOREVAR
+	CALL SAIDECIMAL
 	JMP LOOP1
 	
 	RET                       
@@ -960,13 +1040,10 @@ PRINTARMAPAMEDIO PROC
 	
 	MOV MOV_X,31
 	MOV MOV_Y,159
-
 	CALL CLS
 	CALL HUD
-	PRINTAR MAPAMEDIO, 1d, 30, 30, 114, 16644	;print do mapa
-	PRINTAR FANTASMACACADOR,12D	, 127, 159, 16, 240
-	PRINTAR FANTASMACACADOR,12D	, 31, 48, 16, 240
 	
+	PRINTAR MAPAMEDIO, 1d, 30, 30, 114, 16644	;print do mapa
 	
 	PRINTAR COMIDA, 12D, 38, 54, 2, 4
 	PRINTAR COMIDA, 12D, 38, 70, 2, 4
@@ -1022,10 +1099,14 @@ PRINTARMAPAMEDIO PROC
 	PRINTAR COMIDA, 12D, 134, 134, 2, 4
 	PRINTAR COMIDA, 12D, 134, 150, 2, 4
 	PRINTAR COMIDA, 12D, 134, 166, 2, 4
+	PRINTAR FANTASMACACADOR,13D	, 127, 159, 16, 240
+	PRINTAR FANTASMACACADOR,13D	, 31, 48, 16, 240
 	PRINTAR PACMANABERTODIR,44H,31,159,16,240
 	
 LOOP2:
 	PRINTAR MAPAMEDIO, 1d, 30, 30, 114, 16644	;print do mapa
+	MOV AH,07h
+	INT 21h
 	
 	CALL MOVIMENTO_PACMAN
 	
@@ -1038,8 +1119,12 @@ PRINTARMAPAMEDIO ENDP
 PRINTARMAPADIFICIL PROC
 
 	PRINTAR MAPADIFICIL, 1d, 30, 30, 10, 10	;print do mapa
+	MOV AH,07h
+	INT 21h
 	
-	;CALL MOVIMENTO_PACMAN
+	CALL MOVIMENTO_PACMAN
+	
+	
 	
 	RET                       
 PRINTARMAPADIFICIL ENDP                  
@@ -1125,5 +1210,62 @@ DELAY PROC
 DELAY ENDP
 ;===========================================================
 
+SAIDECIMAL PROC
+;exibe o conteudo de CX como decimal inteiro com sinal
+;variaveis de entrada: AX -> valor binario equivalente do número decimal
+;variaveis de saida: nehuma (exibição de dígitos direto no monitor de video)
+	
+		
+		PUSH AX
+		PUSH BX
+		PUSH CX
+		PUSH DX 		;salva na pilha os registradores usados
+		
+		OR 	AX,AX 	;prepara comparação de sinal
+		
+		JGE PT1 	;if AX >= 0, vai para PT1
+		
+		PUSH AX 		;como AX < 0, salva o número na pilha
+		MOV DL,'-'	;prepara o caracter ' - ' para sair
+		MOV AH,2h 	;prepara exibição
+		INT 21h 	;exibe ' - '
+		
+		POP AX 		;recupera o número
+		NEG AX 		;troca o sinal de AX (AX = - AX)
+		
+		;obtendo dígitos decimais e salvando-os temporariamente na pilha
+PT1: 	XOR CX,CX 	;inicializa CX como contador de dígitos
+		MOV BX,10 	;BX possui o divisor
+PT2: 	XOR DX,DX 	;inicializa o byte alto do dividendo em 0; restante é AX
+		
+		DIV BX 		;após a execução, AX = quociente; DX = resto
+		PUSH DX 		;salva o primeiro dígito decimal na pilha (1o. resto)
+		
+		INC CX 		;contador = contador + 1
+		OR 	AX,AX 	;quociente = 0 ? (teste de parada)
+		JNE PT2 	;não, continuamos a repetir o laço
+		
+		;exibindo os dígitos decimais (restos) no monitor, na ordem inversa
+		MOV AH,2h 	;sim, termina o processo, prepara exibição dos restos
+PT3: 	POP DX 		;recupera dígito da pilha colocando-o em DL (DH = 0)
+		ADD DL,30h 	;converte valor binário do dígito para caracter ASCII
+		
+		INT 21h 	;exibe caracter
+		LOOP PT3 	;realiza o loop ate que CX = 0
+		
+		MOV AH,2H
+		MOV DH,4D
+		MOV DL,29D
+		INT 10H
+		
+		
+		POP DX 		;restaura o conteúdo dos registros
+		POP CX
+		POP BX
+		POP AX 		;restaura os conteúdos dos registradores
+		
+		
+		RET 			;retorna à rotina que chamou
+SAIDECIMAL ENDP
 
 END
