@@ -54,7 +54,7 @@ PRINTAR	MACRO	MATRIZ, COR, POSICAO_X, POSICAO_Y, LARGURA, TAMANHO
 	LADO_X DW 0
 	LADO_Y DW 0
 	COUNT DW 0
-	VNOME DB 0
+	VNOME DB 255 DUP('$')
 	DECISAOMAPA DB 0
 ;========================================================================================================================================================================
 ;VARIAVEIS MOVIMENTO DO JOGADOR
@@ -559,7 +559,7 @@ MAIN PROC
 	
 	CALL CLS
 	
-	;MATRIZ, COR, POSICAO_X, POSICAO_Y, LARGURA, TAMANHO
+	
 	
 	
 			
@@ -750,10 +750,17 @@ HUD PROC
 	PRINTAR VIDA,12D, 230,55, 15,195	; print dos coraçoes
 	PRINTAR VIDA,12D, 250,55, 15,195
 	
-	LEA DX, SCORE
+	LEA DX,VNOME
 	MOV AH, 9
 	INT 21H
 
+	
+	MOV DX,0DH
+	INT 21H
+	
+	LEA DX, SCORE
+	MOV AH, 9
+	INT 21H
 
 	RET
 HUD ENDP
@@ -1043,31 +1050,16 @@ USUARIO PROC
 	MOV AH,9
 	INT 21H
 	
-	MOV AH, 7H
+	MOV CX,3
+	LEA SI,VNOME
+	MOV AH,1H
+	
+	LP:
 	INT 21H
+	MOV [SI],AL
+	INC SI
+	LOOP LP
 	
-	MOV AH,2H ;prepara para exibir caracter no monitor
-	MOV DL, AL ;o caracter é ‘?’
-	INT 21h
-	
-	MOV AH, 7H
-	INT 21H
-	
-	MOV AH,2H ;prepara para exibir caracter no monitor
-	MOV DL, AL ;o caracter é ‘?’
-	INT 21h
-	
-	MOV AH, 7H
-	INT 21H
-	
-	MOV AH,2H ;prepara para exibir caracter no monitor
-	MOV DL, AL ;o caracter é ‘?’
-	INT 21h
-	
-	MOV AH, 1
-	INT 21H
-	
-	MOV VNOME, AL
 	
 	RET
 USUARIO ENDP
